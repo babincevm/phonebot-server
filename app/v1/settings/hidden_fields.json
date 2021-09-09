@@ -1,0 +1,19 @@
+{
+  "default_hidden": {
+    "__v": -1
+  },
+  "Survey": {
+    "admin": {
+      "__type": -1,
+      "createdAt": -1,
+      "updatedAt": -1
+    },
+    "group":  {
+
+    }
+
+
+
+
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "Survey": [
+    "title"
+  ],
+  "Test": [
+    "title"
+  ],
+  "SurveyGroup": [
+    "title"
+  ],
+  "TestGroup": [
+    "title"
+  ],
+  "SurveySubgroup": [
+    "title"
+  ],
+  "TestSubgroup": [
+    "title"
+  ]
+}

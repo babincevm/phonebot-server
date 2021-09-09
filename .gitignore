@@ -1,0 +1,12 @@
+.idea
+.DS_Store
+node_modules
+*.lock
+*.log
+*.txt
+*.env
+*.xml
+*.zip
+uploads
+/public
+*.csv
