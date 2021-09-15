@@ -18,16 +18,16 @@ app.use(express.static('public'));
 /**
  * log func
  */
-// app.use((req, res, next) => {
-console.groupCollapsed(new Date());
-console.log(`
-    url: ${22222}
-    method: ${3333}`);
-console.log('body:');
-console.log(111111);
-console.groupEnd();
-// next();
-// });
+app.use((req, res, next) => {
+  console.groupCollapsed(new Date());
+  console.log(`
+    url: ${req.url}
+    method: ${req.method}`);
+  console.log('body:');
+  console.log(req.body);
+  console.groupEnd();
+  next();
+});
 
 /**
  * роуты

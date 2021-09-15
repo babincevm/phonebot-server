@@ -1,8 +1,6 @@
 const CRUD = require('./CRUD');
 
 class CardController extends CRUD {
-
-
   async getExercises() {}
   async getExerciseById() {}
   async getQuestions() {}
