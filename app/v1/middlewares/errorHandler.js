@@ -6,6 +6,7 @@ function errorHandler (err, req, res, next) {
   let status = 500;
   let message = err.message ?? 'Something went wrong';
 
+  console.log(err instanceof CustomError);
 
   if ( err instanceof CustomError ) {
     status = err.status;
@@ -13,6 +14,7 @@ function errorHandler (err, req, res, next) {
   } else if ( err instanceof CastError ) {
     if ( err.kind === 'ObjectId' ) {
       message = 'Invalid id';
+      status = 400;
     }
   } else if (err instanceof ValidationError) {
     console.log('start');
