@@ -35,8 +35,8 @@ app.use((req, res, next) => {
 
 const BASE_API_URL = process.env.BASE_API_URL;
 const VERSION = process.env.VERSION;
+console.log(`${BASE_API_URL}/${VERSION}/`);
 require('./app/v1/routes').forEach(routeName => {
-  console.log(`${BASE_API_URL}/${VERSION}/${routeName}`);
   app.use(`${BASE_API_URL}/${VERSION}/${routeName}`,
     require(`./app/v1/routes/${routeName}.js`));
 });

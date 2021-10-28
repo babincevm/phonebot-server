@@ -30,6 +30,10 @@ const subgroup = {
     },
   },
 };
+
+/**
+ * Схемы опросов/групп/подгрупп опросов и диагностик и их объекты
+ */
 module.exports = {
   surveySchema: {
     type: 'object',
@@ -101,6 +105,6 @@ module.exports = {
 
   survey,
   group,
-  subgroup
+  subgroup,
 
 };

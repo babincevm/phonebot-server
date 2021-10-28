@@ -42,6 +42,12 @@ const ExerciseSchema = new Schema({
     type: String,
     required: false,
     default: null,
+  },
+  belongsTo: {
+    type: Types.ObjectId,
+    required: false,
+    default: null,
+    ref: 'Illness'
   }
 });
 
