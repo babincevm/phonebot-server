@@ -34,6 +34,10 @@ const ExerciseDirectionController = new ExerciseDirection({model: models.Exercis
 const ExerciseGroupController = new ExerciseGroup({model: models.ExerciseGroup});
 const ExerciseSubgroupController = new ExerciseSubgroup({model: models.ExerciseSubgroup});
 
+const Illness = require('./Illness');
+const IllnessController = new Illness({model: models.Illness});
+
+
 module.exports = {
   SurveyController,
   TestController,
@@ -46,6 +50,8 @@ module.exports = {
 
   UserController,
   CardController,
+
+  IllnessController,
 
   ExerciseController,
   ExerciseDirectionController,

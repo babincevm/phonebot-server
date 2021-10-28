@@ -1,11 +1,14 @@
-const express = require('express');
-const config = require('dotenv').config().parsed;
-const mongoose = require('mongoose');
-const cors = require('cors');
-const {errorHandler} = require('./app/v1/middlewares');
-require('./polyfills')();
+const express = require('express'),
+  config = require('dotenv').config().parsed,
+  mongoose = require('mongoose'),
+  cors = require('cors'),
+  {errorHandler} = require('./app/v1/middlewares'),
+  swaggerUI = require('swagger-ui-express'),
+  swaggerSchema = require('./swagger-docs/');
 
+require('./polyfills')();
 const app = express();
+
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
@@ -22,6 +25,7 @@ app.use((req, res, next) => {
   console.groupCollapsed(new Date());
   console.log(`
     url: ${req.url}
+    headers: ${req.rawHeaders}
     method: ${req.method}`);
   console.log('body:');
   console.log(req.body);
@@ -29,27 +33,19 @@ app.use((req, res, next) => {
   next();
 });
 
-/**
- * роуты
- */
-// require('./app/v1.0.0/routes').forEach(routeName => {
-// 	app.use(`/api/v1.0.0/${routeName}`,
-// require(`./app/v1.0.0/routes/${routeName}.route`)); });
-
+const BASE_API_URL = process.env.BASE_API_URL;
+const VERSION = process.env.VERSION;
+console.log(`${BASE_API_URL}/${VERSION}/`);
 require('./app/v1/routes').forEach(routeName => {
-  app.use(`/api/v1/${routeName}`,
+  app.use(`${BASE_API_URL}/${VERSION}/${routeName}`,
     require(`./app/v1/routes/${routeName}.js`));
 });
+app.use('/swagger/', swaggerUI.serve, swaggerUI.setup(swaggerSchema));
 
 /**
  * Error handle middleware
  */
 app.use(errorHandler);
-
-// app.get('/parser/', async (req, res) => {
-//     await parse();
-//     res.json({ok: true}).status(200).send();
-// });
 
 const PORT = process.env.PORT ?? config.PORT;
 const MONGO_URL = process.env.MONGO_URL ?? config.MONGO_URL;

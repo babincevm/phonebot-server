@@ -16,6 +16,7 @@ const User = require('./User');
 const Card = require('./PatientCard');
 const {Exercise, ExerciseDirection, ExerciseGroup, ExerciseSubgroup} = require(
   './Exercises/');
+const Illness = require('./Illness');
 
 module.exports = {
   Survey,
@@ -28,6 +29,7 @@ module.exports = {
   Question,
   User,
   Card,
+  Illness,
 
   Exercise,
   ExerciseDirection,
