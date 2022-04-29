@@ -1,5 +1,5 @@
 const axios = require('axios');
-
+// const app = require('./../../../../../app');
 
 class Request {
   /**
@@ -9,6 +9,8 @@ class Request {
     if (url !== null) {
       this.setURL(url);
     }
+
+    // console.log('app: ', app);
   }
 
   /**

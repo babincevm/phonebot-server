@@ -2,9 +2,7 @@ const {
   testHelpers: {Request, Validate},
   functions: {getRandomString, deepLog},
 } = require('../../src/api/v1/helpers/');
-// const {expect} = require('chai');
 const {describe, it, beforeEach, afterEach} = require('mocha');
-// const util = require('util');
 
 const request = new Request({url: '/user'});
 const validate = new Validate();

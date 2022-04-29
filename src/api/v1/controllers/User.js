@@ -14,16 +14,15 @@ class User extends CRUD {
     let token = await user.generateToken();
     user = user.toObject();
     let id = user._id;
-    await cache.set(`access#${id}:fields`, user.account_data.role.fields);
-    user.filterBy(user.account_data.role.fields.User);
+    await cache.set(`access#${id}`, user.account_data.role);
     await cache.set(`user#${id}`, user);
+    user.filterBy(user.account_data.role.read.User);
     user.token = token;
 
     this.sendResult(res, user);
   }
 
   async getProfile({token, cache}, res) {
-    console.log(`user#${token.aud}`);
     let user = await cache.get(`user#${token.aud}`);
     if (!user) {
       user = await this.model.get(token.aud);
@@ -42,8 +41,9 @@ class User extends CRUD {
     let token = await user.generateToken();
     user = user.toObject();
     await cache.set(`user#${user._id}`, user);
-    user.filterBy(user.account_data.role.fields.User);
+    user.filterBy(user.account_data.role.read.User);
     user.token = token;
+    console.log('user: ', user);
     return this.sendResult(res, user);
   }
 

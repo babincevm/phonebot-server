@@ -47,7 +47,6 @@ const question = new Schema({
     type: String,
     required: true
   },
-  test: String,
   file,
   selector: {
     type: Map,

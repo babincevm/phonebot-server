@@ -25,11 +25,11 @@ class Functions {
   deepLog(obj, name) {
     let inspect = util.inspect(obj,
       {showHidden: true, colors: true, depth: null});
-    if (name) {
-      console.log(name, ': ', inspect);
-    } else {
-      console.log(inspect);
-    }
+    console.log(
+      name
+        ? `${name}: ${inspect}`
+        : inspect,
+    );
   }
 }
 

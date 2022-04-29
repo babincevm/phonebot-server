@@ -11,32 +11,71 @@ class Polyfills {
     this.setGetClone();
     this.setLog();
     this.setIsString();
+    this.setHasProperty();
   }
 
-  setIsEmpty() {
-    if (Object.prototype.isEmpty) return;
+  has(target, propName) {
+    return Object.prototype.hasOwnProperty.call(target, propName);
+  }
 
-    Object.defineProperty(Object.prototype, 'isEmpty', {
+  /**
+   * Проверяет, что у таргета нет указанного свойства,
+   * и если его нет, то устанавливает
+   *
+   * @param {String} propName - название свойства
+   * @param {Object} attributes - аттрибуты для передачи в функцию
+   *   defineProperty
+   * @param {any} target=Object.prototype - Объект, которому добавляется
+   * свойство
+   * @return true - свойство установлено
+   * @return false - Свойство с указанным названием уже есть в таргете
+   * @return false - Не передано название свойства
+   * @return false - Не переданы аттрибуты
+   */
+  checkAndDefine(
+    propName = null, attributes = null, target = Object.prototype) {
+    if (this.has(target, propName)) return false;
+
+    if (!propName) return false;
+    if (!attributes) return false;
+
+    Object.defineProperty(target, propName, attributes);
+    return true;
+  }
+
+  /**
+   * Добавляет к прототипу объекта свойство hasProperty
+   * Проверяет, что у указаннго объекта есть свойство с переданным названием
+   */
+  setHasProperty() {
+    this.checkAndDefine('hasProperty', {
       enumerable: false,
       configurable: false,
-      /**
-       * Проверка объекта на пустоту
-       * @return {boolean}
-       */
+      value: function(name) {
+        return Object.prototype.hasOwnProperty.call(this, name);
+      },
+    });
+  }
+
+  /**
+   * Проверяет объект на пустоту
+   */
+  setIsEmpty() {
+    this.checkAndDefine('isEmpty', {
+      enumerable: false,
+      configurable: false,
       get() {
         return Object.keys(this).length === 0;
       },
     });
-
   }
 
+  /**
+   * Фильтрация ключей, не входящих в allowedFields
+   */
   setFilterBy() {
-    if (Object.prototype.filterBy) return;
-    Object.defineProperty(Object.prototype, 'filterBy', {
-      /**
-       * Фильтрация ключей, не входящих в allowedFields
-       * @param {Array.<String>|Object} allowedFields
-       */
+    let self = this;
+    this.checkAndDefine('filterBy', {
       value: function(allowedFields) {
         let copy;
         if (Array.isArray(allowedFields)) {
@@ -48,7 +87,7 @@ class Polyfills {
         }
 
         for (let field in this) {
-          if (!Object.prototype.hasOwnProperty.call(this, field)) continue;
+          if (!self.has(this, field)) continue;
           if (copy.self?.includes(field)) continue;
           if (copy[field]) continue;
 
@@ -57,53 +96,46 @@ class Polyfills {
         delete copy.self;
 
         for (let nested in copy) {
-          if (!Object.prototype.hasOwnProperty.call(copy, nested)) continue;
+          if (!self.has(copy, nested)) continue;
           Object.prototype.filterBy.call(this[nested], copy[nested]);
         }
       },
     });
-
   }
 
+  /**
+   * Копирует объект (deep copy)
+   */
   setGetClone() {
-    if (Object.prototype.getClone) return;
-
-    Object.defineProperty(Object.prototype, 'getClone', {
+    this.checkAndDefine('getClone', {
       enumerable: false,
       writable: false,
       configurable: false,
-      /**
-       * Копирует объект (deep copy)
-       * @return {any}
-       */
       value: function() {
         return JSON.parse(JSON.stringify(this));
       },
     });
   }
 
+  /**
+   * Лог объекта в консоль
+   */
   setLog() {
-    if (Object.prototype.log) return;
-
-    Object.defineProperty(Object.prototype, 'log', {
+    this.checkAndDefine('log', {
       enumerable: false,
       writable: false,
       configurable: false,
-      /**
-       * Лог объекта в консоль
-       * @param {*} replacer
-       * @param {Number|String} indent=2
-       */
       value: function(replacer = null, indent = 2) {
         console.log(JSON.stringify(this, replacer, indent));
       },
     });
   }
 
+  /**
+   * Проверка, является ли объект строкойЈ
+   */
   setIsString() {
-    if (String.prototype.isString) return;
-
-    Object.defineProperty(String.prototype, 'isString', {
+    this.checkAndDefine('isString', {
       enumerable: false,
       configurable: false,
       writable: false,
