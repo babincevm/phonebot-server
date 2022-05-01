@@ -11,3 +11,4 @@ uploads
 /public
 *.csv
 *.rdb
+package-lock.json

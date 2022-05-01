@@ -44,12 +44,15 @@ async function start() {
    * Router
    */
   require('./src/api/v1/routes').forEach(routeName => {
+    console.log(`${url}/${routeName}`);
     app.use(
       `${url}/${routeName}`,
       require(`./src/api/v1/routes/${routeName}.js`),
     );
   });
-  app.use('/swagger/', swaggerUI.serve, swaggerUI.setup(swaggerSchema));
+
+  app.use('/static/docs/', swaggerUI.serve, swaggerUI.setup(swaggerSchema));
+
 
   /**
    * Error handler
@@ -85,7 +88,7 @@ async function start() {
 
   try {
     await database.connect(Environment.MONGO_URL);
-    server.init(app, Environment.PORT);
+    server.init(app, Environment.PORT, Environment.DOMAIN, Environment.PROTOCOL);
   } catch (e) {
     process.exit(1);
   }

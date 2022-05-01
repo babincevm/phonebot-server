@@ -1,5 +1,5 @@
-const Database = require('./database');
-const Server = require('./server');
+const Database = require('./Database');
+const Server = require('./Server');
 const Environment = require('./Environment');
 const ErrorProvider = require('./ErrorProvider');
 const JWT = require('./JWT');

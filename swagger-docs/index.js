@@ -1,8 +1,8 @@
-const PORT = process.env.PORT;
-const HOST = process.env.HOST;
-const PROTOCOL = process.env.PROTOCOL;
-const BASE_API_URL = process.env.BASE_API_URL;
-const VERSION = process.env.VERSION;
+const {Environment} = require('./../src/');
+const HOST = Environment.DOMAIN;
+const PROTOCOL = Environment.PROTOCOL;
+const BASE_API_URL = Environment.BASE_API_URL;
+const VERSION = Environment.API_VERSION;
 
 module.exports = {
   openapi: '3.0.1',
@@ -14,7 +14,7 @@ module.exports = {
   },
   servers: [
     {
-      url: `${PROTOCOL}://${HOST}:${PORT}${BASE_API_URL}/${VERSION}`,
+      url: `${PROTOCOL}://${HOST}${BASE_API_URL}/${VERSION}`,
       description: 'Local server',
     },
   ],
