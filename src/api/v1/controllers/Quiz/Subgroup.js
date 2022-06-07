@@ -1,4 +1,6 @@
 const CRUD = require('../CRUD');
+const {SurveyGroup, TestGroup} = require('./../../models');
+const {ErrorProvider} = require('./../../classes');
 
 
 class SubgroupController extends CRUD {
@@ -9,6 +11,9 @@ class SubgroupController extends CRUD {
   }
 
   async create({params: {parent_id}, body}, res, next) {
+    if (!await this.isParentExists(parent_id)) {
+      return next(new ErrorProvider('Parent id is not found').NotFound());
+    }
     let created;
     try {
       created = await new this.model({...body, parent: parent_id}).save(
@@ -21,10 +26,18 @@ class SubgroupController extends CRUD {
 }
 
 
-class SurveySubgroup extends SubgroupController {}
+class SurveySubgroup extends SubgroupController {
+  async isParentExists(parentId) {
+    return await SurveyGroup.exists({_id: parentId});
+  }
+}
 
 
-class TestSubgroup extends SubgroupController {}
+class TestSubgroup extends SubgroupController {
+  async isParentExists(parentId) {
+    return await TestGroup.exists({_id: parentId});
+  }
+}
 
 
 module.exports = {

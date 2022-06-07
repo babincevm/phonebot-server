@@ -5,7 +5,6 @@ const express = require('express'),
     Server,
     Database,
     Environment,
-    Cache,
     ErrorProvider,
   } = require('./src/'),
   cors = require('cors')(),
@@ -18,19 +17,13 @@ const app = express();
 
 async function start() {
 
-  app.use(Logger.bodyLog);
+  // app.use(Logger.bodyLog);
 
   let url = Environment.API_URL;
   app.get(url, (req, res) => {
     res.status(200).json({ok: true});
   });
 
-  await Cache.init();
-
-  /**
-   * Settings
-   */
-  app.use((...props) => Cache.use(...props));
   app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store');
     next();
@@ -38,38 +31,23 @@ async function start() {
   app.use(cors); // TODO: настроить корсы
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
-  // app.use(express.static('public'));
+  app.use(express.static('./../admin/public/index.html'));
 
-  /**
-   * Router
-   */
   require('./src/api/v1/routes').forEach(routeName => {
-    console.log(`${url}/${routeName}`);
     app.use(
       `${url}/${routeName}`,
       require(`./src/api/v1/routes/${routeName}.js`),
     );
   });
 
-  app.use('/static/docs/', swaggerUI.serve, swaggerUI.setup(swaggerSchema));
-
-
-  /**
-   * Error handler
-   */
-  app.use(
+  app.use('/static/docs/', swaggerUI.serve, swaggerUI.setup(swaggerSchema)).use(
     (
       err,
       req,
       res,
       next,
     ) => ErrorHandler.handle(err, req, res, next),
-  );
-
-  /**
-   * 404
-   */
-  app.use(
+  ).use(
     (
       req,
       res,
@@ -80,15 +58,15 @@ async function start() {
     ),
   );
 
-  /**
-   * Boot setup
-   */
   const server = new Server();
   const database = new Database();
 
   try {
     await database.connect(Environment.MONGO_URL);
-    server.init(app, Environment.PORT, Environment.DOMAIN, Environment.PROTOCOL);
+    server.init(app, Environment.PORT, Environment.DOMAIN,
+      Environment.PROTOCOL);
+
+    console.clear();
   } catch (e) {
     process.exit(1);
   }

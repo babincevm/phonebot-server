@@ -1,6 +1,6 @@
 const BaseController = require('./Base');
 const {ErrorProvider} = require('../classes');
-
+const {functions:{deepLog}} = require('./../helpers/');
 
 class CRUD extends BaseController {
   getById({params: {id}}, res, next) {

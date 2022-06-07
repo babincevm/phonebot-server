@@ -6,12 +6,15 @@ class Polyfills {
   constructor() {}
 
   init() {
-    this.setIsEmpty();
-    this.setFilterBy();
-    this.setGetClone();
-    this.setLog();
-    this.setIsString();
-    this.setHasProperty();
+    this.
+      setIsEmpty().
+      setFilterBy().
+      setGetClone().
+      setLog().
+      setIsString().
+      setHasProperty().
+      setGetFlatten().
+      setIsObject();
   }
 
   has(target, propName) {
@@ -55,6 +58,8 @@ class Polyfills {
         return Object.prototype.hasOwnProperty.call(this, name);
       },
     });
+
+    return this;
   }
 
   /**
@@ -68,6 +73,8 @@ class Polyfills {
         return Object.keys(this).length === 0;
       },
     });
+
+    return this;
   }
 
   /**
@@ -101,6 +108,8 @@ class Polyfills {
         }
       },
     });
+
+    return this;
   }
 
   /**
@@ -115,6 +124,8 @@ class Polyfills {
         return JSON.parse(JSON.stringify(this));
       },
     });
+
+    return this;
   }
 
   /**
@@ -129,6 +140,8 @@ class Polyfills {
         console.log(JSON.stringify(this, replacer, indent));
       },
     });
+
+    return this;
   }
 
   /**
@@ -142,12 +155,83 @@ class Polyfills {
       value: function(str) {
         return typeof str === 'string' || str instanceof String;
       },
+    }, String.prototype);
+
+    return this;
+  }
+
+  /**
+   * Получение плоского объекта из вложенного
+   */
+  setGetFlatten() {
+    let self = this;
+    this.checkAndDefine('getFlatten', {
+      enumerable: false,
+      writable: false,
+      configurable: false,
+      value: function() {
+        let flattened = {};
+        for (const i in this) {
+          if (!self.has(this, i)) continue;
+
+          if ((typeof this[i]) === 'object' && !Array.isArray(this[i])) {
+            let nested = Object.prototype.getFlatten.call(this[i]);
+            for (const j in nested) {
+              flattened[i + '.' + j] = nested[j];
+            }
+          } else {
+            flattened[i] = this[i];
+          }
+        }
+        return flattened;
+      },
     });
+
+    return this;
+  }
+
+  setIsObject() {
+    this.checkAndDefine('isObject', {
+      enumerable: false,
+      writable: false,
+      configurable: false,
+      value: function() {
+        return typeof this === 'object' &&
+          !Array.isArray(this) &&
+          this !== null;
+      },
+    });
+
+    return this;
   }
 }
 
 
 module.exports = new Polyfills();
+
+function getObjects() {
+  return {
+    plain: {
+      _id: '111',
+      title: 'test',
+      admin: 'admin',
+    },
+    nested: {
+      remove: {
+        test: 'test',
+      },
+      stay: {
+        stayNested: {
+          test: 'test',
+          removed: 'removed',
+        },
+        removed: 'no',
+      },
+      selfValue: 'self',
+      removedSelfValue: 'no',
+    },
+  };
+}
 
 function test() {
   describe('Polyfills tests', function() {
@@ -166,25 +250,9 @@ function test() {
 
     describe('filter', function() {
       before(function() {
-        this.plain = {
-          _id: '111',
-          title: 'test',
-          admin: 'admin',
-        };
-        this.nested = {
-          remove: {
-            test: 'test',
-          },
-          stay: {
-            stayNested: {
-              test: 'test',
-              removed: 'removed',
-            },
-            removed: 'no',
-          },
-          selfValue: 'self',
-          removedSelfValue: 'no',
-        };
+        let obj = getObjects();
+        this.plain = obj.plain;
+        this.nested = obj.nested;
       });
       it('Should filter plain object', function() {
         let object = this.plain.getClone();
@@ -240,5 +308,38 @@ function test() {
         expect(String.prototype.isString({})).to.be.equal(false);
       });
     });
+
+    describe('getFlatten', function() {
+      before(function() {
+        let obj = getObjects();
+        this.plain = obj.plain;
+        this.nested = obj.nested;
+      });
+      it('Should flatten nested object', function() {
+        let object = this.nested.getClone();
+        object = object.getFlatten();
+        expect(object).to.be.an('object');
+        expect(object).to.be.eql({
+          'remove.test': 'test',
+          'stay.stayNested.test': 'test',
+          'stay.stayNested.removed': 'removed',
+          'stay.removed': 'no',
+          selfValue: 'self',
+          removedSelfValue: 'no',
+        });
+      });
+    });
+
+    describe('isObject', function() {
+      it('Checks different values', function() {
+        expect(Object.prototype.isObject.call({})).to.be.equal(true);
+        expect(Object.prototype.isObject.call({l: null})).to.be.equal(true);
+        expect(Object.prototype.isObject.call('')).to.be.equal(false);
+        expect(Object.prototype.isObject.call(null)).to.be.equal(false);
+        expect(Object.prototype.isObject.call([])).to.be.equal(false);
+      });
+    });
   });
 }
+
+// test();

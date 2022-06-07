@@ -23,14 +23,21 @@ class Request {
     this.axiosSetup(url);
   }
 
+  loadConfig() {
+    require('dotenv').config().parsed;
+    this.DOMAIN = process.env.DOMAIN;
+    this.PROTOCOL = process.env.PROTOCOL;
+    this.BASE_API_URL = process.env.BASE_API_URL;
+    this.API_VERSION = process.env.API_VERSION;
+  }
+
   /**
    * Инициализация и настройка инстанса axios
    * @param {String} url="/" - URL сущности
    */
   axiosSetup(url = '/') {
-    const BASE_API_URL = '/api';
-    const VERSION = 'v1.0.0';
-    let baseURL = `http://localhost:33034${BASE_API_URL}/${VERSION}${url}`;
+    this.loadConfig();
+    let baseURL = `${this.PROTOCOL}://${this.DOMAIN}${this.BASE_API_URL}/${this.API_VERSION}${url}`;
     this.axios = axios.create({
       baseURL,
       headers: {

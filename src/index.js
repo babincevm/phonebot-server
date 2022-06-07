@@ -4,14 +4,12 @@ const {
   Database,
   Environment,
   ErrorProvider,
-  Cache,
 } = require('./api/v1/classes');
 
 module.exports = {
   Logger,
   ErrorHandler,
   Server,
-  Cache,
   Database,
   Environment,
   ErrorProvider,

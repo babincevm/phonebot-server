@@ -4,7 +4,7 @@ const Environment = require('./Environment');
 
 class JWT {
   async sign(payload, audience) {
-    return await jwt.sign({},
+    return await jwt.sign(payload,
       Environment.ACCESS_TOKEN_SECRET,
       {
         expiresIn: '10s',

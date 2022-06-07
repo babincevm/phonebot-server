@@ -15,9 +15,26 @@ let correctUserData = {
   },
   user_data: {
     name: 'Test',
-    test: 'Test',
   },
 };
+
+function registerUser(userData) {
+  return new Promise((resolve, reject) => {
+    request.post(
+      {url: '/register/', data: userData}).
+      then(data => resolve(data)).catch(e => reject(e));
+  });
+}
+
+function loginUser(userData) {
+  return new Promise(((resolve, reject) => {
+    request.post({
+      url: '/login/',
+      data: userData,
+    }).then(data => resolve(data)).catch(e => reject(e));
+  }));
+}
+
 describe('User unit', function() {
   this.timeout(10000);
   describe('Authentications', function() {
@@ -38,24 +55,6 @@ describe('User unit', function() {
         request.delete({
           url: '/',
           ...getHeaders(token),
-        }).then(data => resolve(data)).catch(e => reject(e));
-      }));
-    }
-
-    function registerUser(userData) {
-      return new Promise((resolve, reject) => {
-        request.post(
-          {url: '/register/', data: userData}).
-          then(data => resolve(data)).
-          catch(e => reject(e));
-      });
-    }
-
-    function loginUser(userData) {
-      return new Promise(((resolve, reject) => {
-        request.post({
-          url: '/login/',
-          data: userData,
         }).then(data => resolve(data)).catch(e => reject(e));
       }));
     }
@@ -99,6 +98,7 @@ describe('User unit', function() {
         },
       }).then(
         ({status, data}) => {
+          deepLog(data, 'data');
           validate.status(status, 400);
           validate.incorrect(data);
           validate.message(data, 'already in use');
@@ -115,6 +115,7 @@ describe('User unit', function() {
         },
       }).then(
         ({status, data}) => {
+          deepLog(data, 'data');
           validate.status(status, 400);
           validate.incorrect(data);
           validate.message(data, 'already in use');
@@ -134,9 +135,9 @@ describe('User unit', function() {
       }).catch(e => done(e));
     });
 
-    it('Should authenticate user by email', function(done) {
+    it.skip('Should authenticate user by email', function(done) {
       loginUser({
-        login: correctUserData.account_data.email,
+        email: correctUserData.account_data.email,
         password: correctUserData.account_data.password,
       }).then(({status, data}) => {
         validate.correct(status, data);
@@ -150,7 +151,6 @@ describe('User unit', function() {
       loginUser({
         login: 'Not existing login',
         password: correctUserData.account_data.password,
-        test: 'test',
       }).
         then(({status, data}) => {
           validate.status(status, 404);
@@ -223,6 +223,7 @@ describe('User unit', function() {
           validate.status(status, 400);
           validate.incorrect(data);
           validate.message(data, 'Path `login` is required');
+          validate.message(data, 'Path `password` is required');
           return done();
         }).catch(e => done(e));
       });
@@ -262,7 +263,7 @@ describe('User unit', function() {
       ).catch(e => done(e));
     });
 
-    it('Should return profile data', function(done) {
+    it.skip('Should return profile data', function(done) {
       loginUser({
         login: correctUserData.account_data.login,
         password: correctUserData.account_data.password,
@@ -271,7 +272,6 @@ describe('User unit', function() {
           validate.correct(status, data);
           fetchProfile(this.token).then(({status, data}) => {
             validate.correct(status, data);
-            console.log('data: ', data);
             return done();
           }).catch(e => done(e));
         },
@@ -279,3 +279,9 @@ describe('User unit', function() {
     });
   });
 });
+
+module.exports = {
+  registerUser,
+  loginUser,
+  correctUserData,
+};

@@ -6,10 +6,12 @@
 
 
 const {ErrorProvider} = require('../classes');
-const {Error: {ValidationError, CastError}} = require('mongoose');
+const {Error: {ValidationError, CastError, StrictModeError}} = require(
+  'mongoose');
 const {functions: {has}} = require('../helpers');
 const {JsonWebTokenError} = require('jsonwebtoken');
 const {Response, Request, NextFunction} = require('express');
+const {MongoError} = require('mongodb');
 
 
 class ErrorHandler {
@@ -33,7 +35,7 @@ class ErrorHandler {
   handleCastError(err) {
     let result = {
       status: 400,
-      message: '',
+      message: 'Cast error',
     };
     if (err.kind === 'ObjectId') {
       result.message = 'Invalid id';
@@ -49,17 +51,36 @@ class ErrorHandler {
   handleValidationError(err) {
     let result = {
       status: 400,
-      message: '',
+      message: 'Validation error',
     };
+
     let messages = [];
     for (let error in err.errors) {
       if (!has(err.errors, error)) continue;
+
       let cur = err.errors[error];
-      if (cur.kind === 'required') {
-        messages.push(
-          cur.properties.message ?? `Path \`${cur.path}\` is required`);
+      if (!has(cur, 'kind')) continue;
+
+      switch (cur.kind.toLowerCase()) {
+        case 'required': {
+          messages.push(
+            cur.properties.message || `Path \`${cur.path}\` is required`);
+          break;
+        }
+        case 'embedded': {
+          messages.push(
+            `${this.getHandleResult(cur.reason).message} for path ${cur.path}`,
+          );
+          break;
+        }
+        case 'user defined': {
+          messages.push(
+            cur.properties.message || `Validation error for path ${cur.path}`);
+          break;
+        }
       }
     }
+
     result.message = messages.join('\n');
     return result;
   }
@@ -72,7 +93,7 @@ class ErrorHandler {
   handleMongoError(err) {
     let result = {
       status: 400,
-      message: '',
+      message: 'Database error',
     };
 
     if (err.code === 11000) {
@@ -113,6 +134,17 @@ class ErrorHandler {
   }
 
   /**
+   * Обработка неверных полей в схеме
+   * @param {StrictModeError} err
+   */
+  handleStrictModeError(err) {
+    return {
+      status: 400,
+      message: err.message.replace(' and strict mode is set to throw.', ''),
+    };
+  }
+
+  /**
    * Обработка ошибок
    * @param {Error} err - Error object
    * @param {Request} req
@@ -121,34 +153,43 @@ class ErrorHandler {
    * @return {*}
    */
   handle(err, req, res, next) {
-    let handlerResult = {
-      status: 500,
-      message: err.message ?? 'Something went wrong :(',
-    };
+    console.group('Error handler');
+    console.log(err.constructor);
+    console.log('err: ', err);
+    console.groupEnd();
 
-    // console.group('Error handler');
-    // console.log(err);
-    // console.groupEnd();
-
-    if (err instanceof ErrorProvider) {
-      handlerResult = this.handleCustomError(err);
-    } else if (err instanceof CastError) {
-      handlerResult = this.handleCastError(err);
-    } else if (err instanceof ValidationError) {
-      handlerResult = this.handleValidationError(err);
-    } else if (err instanceof JsonWebTokenError) {
-      handlerResult = this.handleJsonWebTokenError(err);
-    } else if (err instanceof TypeError) {
-      handlerResult = this.handleTypeError(err);
-    }// TODO: найти класс MongoError и сравнивать по инстансу
-    else if (err.name === 'MongoError') {
-      handlerResult = this.handleMongoError(err);
-    }
+    let handlerResult = this.getHandleResult(err);
 
     return res.status(handlerResult.status).
       json({ok: false, message: handlerResult.message});
   }
 
+  getHandleResult(err) {
+    if (err.name === 'MongoError') {
+      return this.handleMongoError(err);
+    }
+
+    switch (err.constructor) {
+      case ErrorProvider:
+        return this.handleCustomError(err);
+      case CastError:
+        return this.handleCastError(err);
+      case ValidationError:
+        return this.handleValidationError(err);
+      case JsonWebTokenError:
+        return this.handleJsonWebTokenError(err);
+      case TypeError:
+        return this.handleTypeError(err);
+      case StrictModeError:
+        return this.handleStrictModeError(err);
+
+      default:
+        return {
+          status: 500,
+          message: err.message ?? 'Something went wrong :(',
+        };
+    }
+  }
 }
 
 

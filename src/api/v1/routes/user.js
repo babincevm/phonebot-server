@@ -1,27 +1,20 @@
 const router = require('express-promise-router')();
 const {UserController} = require('../controllers');
-const {Auth, Cache} = require('./../middlewares');
-const {UserValidator} = require('./../validators');
-const {UserFilter} = require('./../filters');
+const {Auth} = require('./../middlewares');
 
 // Получение данных профиля
 router.get('/profile/',
   [
     Auth.verifyToken,
-    (req, res, next) => Cache.get(req, res, next, `user#${req.token.aud}`),
   ],
   (...props) => UserController.getProfile(...props),
 );
 
 router.get('/patients/', (...props) => UserController.getPatients(...props));
-router.get('/quiz/', (...props) => UserController.getQuiz(...props));
+// router.get('/quiz/', (...props) => UserController.getQuiz(...props));
 
 // Авторизация пользователя
 router.post('/login/',
-  [
-    UserValidator.login,
-    UserFilter.login,
-  ],
   (...props) => UserController.login(...props),
 );
 
@@ -37,7 +30,5 @@ router.post('/forget/', [],
 router.delete('/', [
   Auth.verifyToken,
 ], (...props) => UserController.removeUser(...props));
-
-// router.patch('/:id/', (...props) => UserController.update(...props));
 
 module.exports = router;

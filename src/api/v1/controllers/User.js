@@ -6,52 +6,43 @@ const {deepLog} = require('./../helpers/functions');
 
 class User extends CRUD {
 
-  async login({body: {login, password}, cache}, res, next) {
+  /**
+   * Логин пользователя
+   * @param {String} login - логин из тела
+   * @param {String} password - пароль из тела
+   * @param {Response} res
+   * @param {CallableFunction} next
+   * @return {Promise<*>}
+   */
+  async login({body: {login, password}}, res, next) {
     let user = await this.model.getByLogin(login);
     if (!user) return next(new ErrorProvider('User not found').NotFound());
 
-    await user.validatePassword(password);
-    let token = await user.generateToken();
-    user = user.toObject();
-    let id = user._id;
-    await cache.set(`access#${id}`, user.account_data.role);
-    await cache.set(`user#${id}`, user);
-    user.filterBy(user.account_data.role.read.User);
-    user.token = token;
-
-    this.sendResult(res, user);
-  }
-
-  async getProfile({token, cache}, res) {
-    let user = await cache.get(`user#${token.aud}`);
-    if (!user) {
-      user = await this.model.get(token.aud);
+    if (!await user.validatePassword(password)) {
+      return next(new ErrorProvider('Invalid password').BadRequest());
     }
-    // user = user.toObject();
-    let access = await cache.get(`access#${token.aud}:fields`);
-    user.filterBy(access.User);
+    let token = await user.generateToken({});
+    user = user.toObject();
+    user.token = token;
+
     this.sendResult(res, user);
   }
 
-  async register({body, cache}, res, next) {
+  async getProfile({token}, res) {
+    let user = await this.model.get(token.aud);
+    this.sendResult(res, user);
+  }
+
+  async register({body}, res, next) {
     let user = await new this.model(body).save({timestamps: true});
-    await this.model.populate(user, {
-      path: 'account_data.role',
-    });
-    let token = await user.generateToken();
+    let token = await user.generateToken({});
     user = user.toObject();
-    await cache.set(`user#${user._id}`, user);
-    user.filterBy(user.account_data.role.read.User);
     user.token = token;
-    console.log('user: ', user);
     return this.sendResult(res, user);
   }
 
-  async removeUser({token, cache}, res, next) {
+  async removeUser({token}, res, next) {
     await this.model.findByIdAndRemove(token.aud);
-    await cache.del(`user#${token.aud}`, null);
-    await cache.del(`access#${token.aud}:fields`, null);
-
     this.sendResult(res);
   }
 

@@ -67,10 +67,46 @@ class Validate {
     expect(data.result.token, 'Token is not s string').to.be.a('string');
   }
 
+  objectHavePropertyName(obj, propName, value = null) {
+    this.dataType(obj);
+    expect(obj, `${obj} has no field ${propName}`).
+      to.
+      haveOwnPropertyDescriptor(propName);
+  }
+
+  arrayLength(arr, length) {
+    expect(arr, `${JSON.stringify(arr)} is not an array`).to.be.an('array');
+    expect(arr, `${arr} is not of length of ${length}`).
+      to.
+      have.
+      lengthOf(length);
+  }
+
+  arrayHaveObject(arr, obj) {
+    expect(arr, `${arr} is not an array`).to.be.an('array');
+    expect(arr, 'Array is empty').to.not.be.empty;
+    expect(arr, `${JSON.stringify(arr)} has no ${JSON.stringify(obj)}`).to.deep.include(obj);
+  }
+
+  objectInclude(obj1, obj2) {
+    this.dataType(obj1);
+    this.dataType(obj2);
+    expect(obj1, 'Object not include').to.own.include(obj2);
+  }
+
   unauthorized(status, data) {
     this.status(status, 401);
     this.incorrect(data);
     this.message(data, 'Unauthorized');
+  }
+
+  hasResult(data) {
+    this.objectHavePropertyName(data, 'result');
+  }
+
+  fieldEquality(data, fieldName, value) {
+    this.objectHavePropertyName(data, fieldName);
+    expect(data[fieldName], `${fieldName} is not ${value}`).to.be.equal(value);
   }
 }
 

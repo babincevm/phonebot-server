@@ -33,7 +33,6 @@ class Base {
    * @param {{}|null} data объект, который будет отправлен
    */
   sendJSONResponse(res, status, data) {
-
     return res.status(status).json(data);
   }
 
@@ -60,14 +59,13 @@ class Base {
   sendResult(res, result = null, req = null) {
     let data = this.getDataObject();
     if (result) {
-      let access = req?.role?.fields?.[this.model_name];
-      data.result = this.convert(result, access);
+      data.result = this.convert(result);
     }
     this.sendJSONResponse(res, 200, data);
   }
 
-  convert(data = {}, access = null) {
-    return data.toObject ? data.toObject(access) : data;
+  convert(data = {}) {
+    return data.toObject ? data.toObject() : data;
   }
 }
 

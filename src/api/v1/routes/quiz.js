@@ -1,5 +1,5 @@
 const router = require('express-promise-router')();
-const {routeMiddleWare} = require('../middlewares');
+
 const {
   SurveyController,
   TestController,
@@ -11,7 +11,7 @@ const {
 
 router.get('/survey/', (...props) => SurveyController.getAll(...props));
 router.get('/survey/:id/', (...props) => SurveyController.getById(...props));
-router.get('/survey/:id/groups/',
+router.get('/survey/:parent_id/groups/',
   (...props) => SurveyGroupController.getAll(...props));
 router.get('/survey/group/:id/',
   (...props) => SurveyGroupController.getById(...props));
@@ -27,13 +27,13 @@ router.post('/survey/group/:parent_id/subgroup/',
   (...props) => SurveySubgroupController.create(...props));
 
 router.patch('/survey/:id',
-  (...props) => routeMiddleWare.prePatch(...props, 'Survey'),
+  // (...props) => routeMiddleWare.prePatch(...props, 'Survey'),
   (...props) => SurveyController.update(...props));
 router.patch('/survey/group/:id',
-  (...props) => routeMiddleWare.prePatch(...props, 'SurveyGroup'),
+  // (...props) => routeMiddleWare.prePatch(...props, 'SurveyGroup'),
   (...props) => SurveyGroupController.update(...props));
 router.patch('/survey/subgroup/:id',
-  (...props) => routeMiddleWare.prePatch(...props, 'SurveySubgroup'),
+  // (...props) => routeMiddleWare.prePatch(...props, 'SurveySubgroup'),
   (...props) => SurveySubgroupController.update(...props));
 
 router.delete('/survey/:id', (...props) => SurveyController.remove(...props));
@@ -60,13 +60,13 @@ router.post('/test/group/:parent_id/subgroup/',
   (...props) => TestSubgroupController.create(...props));
 
 router.patch('/test/:id',
-  (...props) => routeMiddleWare.prePatch(...props, 'Test'),
+  // (...props) => routeMiddleWare.prePatch(...props, 'Test'),
   (...props) => TestController.update(...props));
 router.patch('/test/group/:id',
-  (...props) => routeMiddleWare.prePatch(...props, 'TestGroup'),
+  // (...props) => routeMiddleWare.prePatch(...props, 'TestGroup'),
   (...props) => TestGroupController.update(...props));
 router.patch('/test/subgroup/:id',
-  (...props) => routeMiddleWare.prePatch(...props, 'TestSubgroup'),
+  // (...props) => routeMiddleWare.prePatch(...props, 'TestSubgroup'),
   (...props) => TestSubgroupController.update(...props));
 
 router.delete('/test/:id', (...props) => TestController.remove(...props));

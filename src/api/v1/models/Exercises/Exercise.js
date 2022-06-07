@@ -1,5 +1,4 @@
 const {model, Schema, Types} = require('mongoose');
-const {CustomError} = require('../../classes');
 const file = require('../File');
 
 const ExerciseSchema = new Schema({
@@ -43,12 +42,6 @@ const ExerciseSchema = new Schema({
     required: false,
     default: null,
   },
-  belongsTo: {
-    type: Types.ObjectId,
-    required: false,
-    default: null,
-    ref: 'Illness'
-  }
 });
 
 module.exports = model('Exercise', ExerciseSchema);
