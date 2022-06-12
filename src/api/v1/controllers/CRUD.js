@@ -1,6 +1,7 @@
 const BaseController = require('./Base');
 const {ErrorProvider} = require('../classes');
-const {functions:{deepLog}} = require('./../helpers/');
+const {functions: {deepLog}} = require('../utils/');
+
 
 class CRUD extends BaseController {
   getById({params: {id}}, res, next) {
@@ -21,7 +22,9 @@ class CRUD extends BaseController {
   update({params: {id}, body}, res, next) {
     this.model.findByIdAndUpdate(id, body,
       {new: true},
-      (err, result) => err ? next(err) : this.sendResult(res, result),
+      (err, result) => err
+        ? next(err)
+        : this.sendResult(res, result),
     );
   }
 

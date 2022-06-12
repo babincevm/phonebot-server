@@ -1,6 +1,6 @@
 const {Response} = require('express');
-const mongoose = require('mongoose');
-const {CustomError} = require('../classes');
+const {Schema: {Types: {ObjectId}}} = require('mongoose');
+const {ErrorProvider} = require('../classes');
 
 
 class Base {
@@ -23,6 +23,18 @@ class Base {
    */
   get model_name() {
     return this._model.modelName;
+  }
+
+  /**
+   * Получение документа по ид и его проверка на существование
+   * @param {ObjectId} id - id документа
+   * @throws ErrorProvider - если не найден документ
+   * @return {Promise<*>}
+   */
+  async getDocumentById(id) {
+    let doc = await this.model.findById(id);
+    if (!doc) new ErrorProvider(`${this.model_name} not found`).NotFound().throw();
+    return doc;
   }
 
   /**

@@ -8,7 +8,7 @@
 const {ErrorProvider} = require('../classes');
 const {Error: {ValidationError, CastError, StrictModeError}} = require(
   'mongoose');
-const {functions: {has}} = require('../helpers');
+const {functions: {has}} = require('../utils');
 const {JsonWebTokenError} = require('jsonwebtoken');
 const {Response, Request, NextFunction} = require('express');
 const {MongoError} = require('mongodb');
@@ -37,6 +37,7 @@ class ErrorHandler {
       status: 400,
       message: 'Cast error',
     };
+    console.log('err: ', err);
     if (err.kind === 'ObjectId') {
       result.message = 'Invalid id';
     }
@@ -61,6 +62,7 @@ class ErrorHandler {
       let cur = err.errors[error];
       if (!has(cur, 'kind')) continue;
 
+      console.log('cur: ', cur);
       switch (cur.kind.toLowerCase()) {
         case 'required': {
           messages.push(
@@ -74,8 +76,21 @@ class ErrorHandler {
           break;
         }
         case 'user defined': {
-          messages.push(
-            cur.properties.message || `Validation error for path ${cur.path}`);
+          console.log(cur);
+          if (cur.reason) {
+            let reasonResult = this.getHandleResult(cur.reason);
+            messages.push(reasonResult.message);
+            result.status = reasonResult.status;
+          } else {
+            messages.push(
+              cur.properties.message ||
+              `Validation error for path ${cur.path}`);
+
+          }
+          break;
+        }
+        case 'objectid': {
+          messages.push(`Invalid id format for path ${cur.path}`);
           break;
         }
       }
@@ -96,16 +111,24 @@ class ErrorHandler {
       message: 'Database error',
     };
 
-    if (err.code === 11000) {
-      let messages = [];
-      for (let key in err.keyValue) {
-        if (!has(err.keyValue, key)) continue;
+    switch (err.code) {
+      case 11000: {
+        let messages = [];
+        for (let key in err.keyValue) {
+          if (!has(err.keyValue, key)) continue;
 
-        messages.push(key);
+          messages.push(key);
+        }
+        result.message = `[${messages.join(', ')}] already in use`;
+        break;
       }
-      result.message = `[${messages.join(', ')}] already in use`;
+      case 66: {
+        /**
+         * TODO: Поправить этот костыль
+         */
+        result.message = err.message.split('::')[2].trim();
+      }
     }
-
     return result;
   }
 

@@ -1,7 +1,7 @@
 const {
   testHelpers: {Request, Validate},
   functions: {getRandomString, deepLog},
-} = require('../../src/api/v1/helpers/');
+} = require('../../src/api/v1/utils/');
 
 // const {registerUser, correctUserData} = require('./../user/auth.test');
 
@@ -258,7 +258,7 @@ describe('Survey unit', function() {
         deepLog(data, 'data');
         validate.status(status, 404);
         validate.incorrect(data);
-        validate.message(data, 'Parent id is not found');
+        validate.message(data, 'Invalid id for Direction');
         return done();
       }).catch(e => done(e));
     });
@@ -271,7 +271,7 @@ describe('Survey unit', function() {
           deepLog(data);
           validate.status(status, 400);
           validate.incorrect(data);
-          validate.message(data, 'Invalid id');
+          validate.message(data, 'Invalid id format');
           return done();
         }).catch(e => done(e));
       });
@@ -350,9 +350,11 @@ describe('Survey unit', function() {
           deepLog(data);
           validate.correct(status, data);
           validate.hasResult(data);
+          console.log('subgroup: ', subgroup);
+          console.log('data.result: ', data.result);
           validate.objectInclude(data.result, subgroup);
           return done();
-        });
+        }).catch(e => done(e));
     });
 
     it('Should not create new subgroup due to absence of title',
@@ -388,7 +390,7 @@ describe('Survey unit', function() {
         deepLog(data);
         validate.status(status, 404);
         validate.incorrect(data);
-        validate.message(data, 'Parent id is not found');
+        validate.message(data, 'Invalid id for Group');
         return done();
       }).catch(e => done(e));
     });

@@ -1,7 +1,7 @@
 const {
   testHelpers: {Request, Validate},
   functions: {getRandomString, deepLog},
-} = require('../../src/api/v1/helpers/');
+} = require('../../src/api/v1/utils/');
 
 // const {registerUser, correctUserData} = require('./../user/auth.test');
 
@@ -258,7 +258,7 @@ describe('Test unit', function() {
         deepLog(data);
         validate.status(status, 404);
         validate.incorrect(data);
-        validate.message(data, 'Parent id is not found');
+        validate.message(data, 'Invalid id for Direction');
         return done();
       }).catch(e => done(e));
     });
@@ -388,7 +388,7 @@ describe('Test unit', function() {
         deepLog(data);
         validate.status(status, 404);
         validate.incorrect(data);
-        validate.message(data, 'Parent id is not found');
+        validate.message(data, 'Invalid id for Group');
         return done();
       }).catch(e => done(e));
     });

@@ -31,6 +31,10 @@ class Functions {
         : inspect,
     );
   }
+
+  copyObject(val) {
+    return JSON.parse(JSON.stringify(val));
+  }
 }
 
 

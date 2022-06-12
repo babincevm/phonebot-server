@@ -1,4 +1,4 @@
-const {model, Schema, Types} = require('mongoose');
+const {model, Schema} = require('mongoose');
 const file = require('../File');
 
 const ExerciseSchema = new Schema({

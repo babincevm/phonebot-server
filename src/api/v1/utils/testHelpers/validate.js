@@ -20,7 +20,9 @@ class Validate {
    * @param {Object} data - Тело ответа
    */
   dataType(data) {
+    // eslint-disable-next-line no-unused-expressions
     expect(data, 'Data is null').to.not.be.null;
+    // eslint-disable-next-line no-unused-expressions
     expect(data, 'Data is undefined').to.not.be.undefined;
     expect(data, 'Data is not an object').to.be.an('object');
   }
@@ -84,14 +86,16 @@ class Validate {
 
   arrayHaveObject(arr, obj) {
     expect(arr, `${arr} is not an array`).to.be.an('array');
+    // eslint-disable-next-line no-unused-expressions
     expect(arr, 'Array is empty').to.not.be.empty;
-    expect(arr, `${JSON.stringify(arr)} has no ${JSON.stringify(obj)}`).to.deep.include(obj);
+    expect(arr, `${JSON.stringify(arr)} has no ${JSON.stringify(obj)}`).
+      to.deep.include.members([obj]);
   }
 
   objectInclude(obj1, obj2) {
     this.dataType(obj1);
     this.dataType(obj2);
-    expect(obj1, 'Object not include').to.own.include(obj2);
+    expect(obj1, 'Object not include').to.deep.include(obj2);
   }
 
   unauthorized(status, data) {

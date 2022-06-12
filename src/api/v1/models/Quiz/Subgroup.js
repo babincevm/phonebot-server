@@ -1,5 +1,5 @@
 const {model, Schema, Types} = require('mongoose');
-
+const {ErrorProvider} = require('./../../classes');
 const SubgroupSchema = new Schema({
   title: {
     type: String,
@@ -10,7 +10,10 @@ const SubgroupSchema = new Schema({
     type: Types.ObjectId,
     ref: 'Group',
     validate: {
-      validator: val => model('Group').exists(val),
+      validator: async val => {
+        if (await model('Group').exists(val)) return true;
+        new ErrorProvider('Invalid id for Group').NotFound().throw();
+      },
       message: 'Invalid id for Group',
     },
   },
@@ -20,10 +23,10 @@ const SubgroupSchema = new Schema({
       ref: 'Question',
       validate: {
         validator: val => model('Question').exists(val),
-        message: 'Invalid id for Question'
-      }
-    }
-  ]
+        message: 'Invalid id for Question',
+      },
+    },
+  ],
 }, {
   timestamps: true,
   discriminatorKey: '__type',

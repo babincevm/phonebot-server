@@ -1,5 +1,5 @@
 const {model, Schema, Types} = require('mongoose');
-
+const {ErrorProvider} = require('./../../classes');
 const GroupSchema = new Schema({
   title: {
     type: String,
@@ -10,9 +10,11 @@ const GroupSchema = new Schema({
     type: Types.ObjectId,
     ref: 'Quiz',
     validate: {
-      validator: val => model('Quiz').exists(val),
-      message: 'Invalid id for Direction'
-    }
+      validator: async val => {
+        if (await model('Quiz').exists(val)) return true;
+        new ErrorProvider('Invalid id for Direction').NotFound().throw();
+      },
+    },
   },
 }, {
   timestamps: true,

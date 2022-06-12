@@ -1,7 +1,7 @@
 const CRUD = require('./CRUD'),
   {ErrorProvider} = require('../classes/');
 
-const {deepLog} = require('./../helpers/functions');
+const {deepLog} = require('../utils/functions');
 
 
 class User extends CRUD {

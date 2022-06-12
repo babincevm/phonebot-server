@@ -1,7 +1,7 @@
 const {
   testHelpers: {Request, Validate},
   functions: {getRandomString, deepLog},
-} = require('../../src/api/v1/helpers/');
+} = require('../../src/api/v1/utils/');
 
 const {describe, it, before, after} = require('mocha');
 const request = new Request({url: '/role'});
